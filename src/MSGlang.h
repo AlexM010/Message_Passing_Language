@@ -5,11 +5,46 @@
 #include <any>
 #ifndef MSGLANG_H
 #define MSGLANG_H
-using namespace std;
-class let{
-    private:
+#define let Let*
+#define object new Let()
 
+using namespace std;
+class Let;
+class Item{
+    private:
+        string s;
+        int i;
+        double d;
+        bool b;
+        Let* l;
+        bool is_empty=true;
+        enum{
+            STRING,
+            INT,
+            DOUBLE,
+            BOOL,
+            METHOD,
+            OBJECT}e;
     public:
+       Item(const string& s);
+       Item(const int& i);
+       Item(const double& d);
+       Item(const bool& b);
+       Item(Let* const l);
+       void print();
+};
+class Let{
+    private:
+        map<string, Item*> data;
+        bool empty=true;
+    public:
+        void add(string key,const string& s);
+        void add(string key,const int& i);
+        void add(string key,const double& d);
+        void add(string key,const bool& b);
+        void add(string key,Let* const l);
+        void print();
+  
 };
 
 
