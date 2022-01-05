@@ -14,6 +14,9 @@
 #define lambda []()
 #define func(s) key(s)=lambda
 #define ref(s) &s
+#define self(s) this->data[#s]
+#define arg(s) this->rec_data[#s]
+#define none (*(new Let()))
 
 
 
@@ -53,6 +56,7 @@ class Item{
        void set(const double& d);
        void set(const bool& b);
        void set(Let l);
+       friend ostream& operator<<(ostream& os, const Item& it);
        Item* get();
        Item& operator=(void* x);
        void print();
@@ -61,6 +65,7 @@ class Item{
 class Let{
     private:
         map<string, Item*> data;
+        map<string,Item*> rec_data;
         int size=0;
         string temp;
         bool empty=true;
@@ -73,40 +78,28 @@ class Let{
         Let add(string key,const bool& b);
         Let add(string key,Let const l);
         Let add(string key,const Item& i);
+
+        friend ostream& operator<<(ostream& os, const Let& l);
         void print();
         Let operator[](Let x);
         Item& operator[](string key);
         Let operator,(Let x);
-        //nikolh gtxs kane to gia ola ta data types mh gamhsw
         Let operator,(int x);
         Let operator+(int x);
         Let operator=(int x);
         Let operator=(function<bool(void)> f);
         Let operator=(Item i);
+        Let operator,(const char* x);
+        Let operator+(const char* x);
+    
+        Let operator,(double x);
+        Let operator+(double x);
+        Let operator,(bool x);
+        Let operator+(bool x);
+        Let operator+(Let const x);
+        Let operator,(function<bool(void)> f);
 };
 
 
-Item input(const char*s){
-            cout<<s;
-            
-            string x=string();
-            cin>>x;
-            try{
-                double d=stod(x);
-                return(Item(d));
-            }catch(...){
-                try{
-                     int i=stoi(x);
-                    return(Item(i));
-                }catch(...){
-                    if(strcmp(x.c_str(), "true")==0){
-                       return(Item( true));
-                    }else if(strcmp(x.c_str(), "false")==0){
-                      return(Item(false));
-                    }
-                    return Item( x);
-                }
-            }
-            
-        }
+Item input(const char*s);
 #endif

@@ -194,3 +194,118 @@ Let Let::operator=(function<bool(void)> f){
         add(temp,f);
         return *this;
 }
+Let Let::operator,(function<bool(void)> f){
+        add(to_string(size),f);
+        size++;
+        return *this;
+}
+Let Let::operator,(const char* x){
+        add(to_string(size),string(x));
+        size++;
+        return *this;
+}
+Let Let::operator+(const char* x){
+        add(to_string(size),string(x));
+        size++;
+        return *this;
+}
+
+Let Let::operator,(double x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+Let Let::operator+(double x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+
+Let Let::operator,(bool x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+Let Let::operator+(bool x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+
+
+Let Let::operator+(Let const x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+Item input(const char*s){
+        cout<<s;
+        
+        string x=string();
+        cin>>x;
+        try{
+        double d=stod(x);
+        return(Item(d));
+        }catch(...){
+        try{
+                int i=stoi(x);
+                return(Item(i));
+        }catch(...){
+                if(strcmp(x.c_str(), "true")==0){
+                return(Item( true));
+                }else if(strcmp(x.c_str(), "false")==0){
+                return(Item(false));
+                }
+                return Item( x);
+        }
+        }
+
+}
+ostream& operator<<(ostream& os, const Item& it){
+        
+    switch (it.e)
+    {
+    case it.INT:
+        os<<it.i;
+        break;
+    case it.DOUBLE:
+        os<<it.d;
+        break;
+    case it.BOOL:
+        if (it.b) os<<"true";
+        else os<<"false";
+        break;
+    case it.STRING:
+        os<<"\""<<it.s<<"\"";
+        break;
+    case it.OBJECT:
+        os<< it.l;
+        break;
+    case it.METHOD:
+        os<<"Method";
+        break;
+    default:
+        break;
+    }
+        return os;
+
+}
+ostream& operator<<(ostream& os, const Let& l){
+    os<<"object ";
+        if(l.empty){
+            os<<"Empty"<<endl;
+        }else{
+            os<<"[ ";
+            for(auto it=l.data.begin();it!=l.data.end();){
+                os<<"\""<<it->first<<"\" : ";
+                it->second->print();
+                it++;
+                if(it!=l.data.end()){
+                    os<<" , ";
+                }
+            }
+            os<<" ] ";
+        }
+        os << endl;
+    return os;
+}
