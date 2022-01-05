@@ -3,10 +3,7 @@
 #include <vector>
 #include "MSGlang.h"
 int main() {
-    let l=object;
-    l->add("name",string("name"));
-    l->add("age",20);
-    l->add("is_empty",false);
-    l->print();
+    let m = object[values 0 , 1 , 2, 3];
+    m.print();
     return 0;
 }
