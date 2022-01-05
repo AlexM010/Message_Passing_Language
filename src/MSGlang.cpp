@@ -25,8 +25,8 @@ Item::Item(const bool& b){
         this->is_empty=false;
 }
 
-Item::Item(Let* const l){
-        this->l = l;
+Item::Item(Let const l){
+        this->l =(Let*) &l;
         this->e=OBJECT;
         this->is_empty=false;
 }
@@ -35,24 +35,23 @@ void Item::print(){
     switch (e)
     {
     case INT:
-        cout<<"Value: "<<i<<endl;
+        cout<<i;
         break;
     case DOUBLE:
-        cout<<"Value: "<<d<<endl;
+        cout<<d;
         break;
     case BOOL:
-        cout<<"Value: "<<b<<endl;
+        if (b) cout<<"true";
+        else cout<<"false";
         break;
     case STRING:
-        cout<<"Value: "<<s<<endl;
+        cout<<"\""<<s<<"\"";
         break;
     case OBJECT:
-        cout<<"Value: ";
         l->print();
-        cout<<endl;
         break;
     case METHOD:
-        cout<<"Value: "<<"Method"<<endl;
+        cout<<"Method";
         break;
     default:
         break;
@@ -83,23 +82,39 @@ void Let::add(string key,const bool& b){
         this->empty=false;
 }
 
-void Let::add(string key,Let* const l){
+void Let::add(string key,Let const l){
         Item* it=new Item(l);
         this->data.insert(pair<string,Item*>(key,it));
         this->empty=false;
 }
 
 void Let::print(){
+        cout<<"object ";
         if(this->empty){
-            cout<<"{}";
+            cout<<"Empty"<<endl;
         }else{
-            cout<<"{";
-            for(auto it=this->data.begin();it!=this->data.end();it++){
-                cout<<it->first<<" - ";
+            cout<<"[ ";
+            for(auto it=this->data.begin();it!=this->data.end();){
+                cout<<"\""<<it->first<<"\" : ";
                 it->second->print();
-                cout<<",";
+                it++;
+                if(it!=this->data.end()){
+                    cout<<" , ";
+                }
             }
-            cout<<"}";
+            cout<<" ] ";
         }
         cout << endl;
+}
+
+Let Let::operator,(int x){
+        add(to_string(size),x);
+        size++;
+
+        return *this;
+}
+Let Let::operator+(int x){
+        add(to_string(size),x);
+        size++;
+        return *this;
 }
