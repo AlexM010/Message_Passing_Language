@@ -1,5 +1,3 @@
-#include <iostream>
-#include <string>
 #include "MSGlang.h"
 Item::Item(const string& s){
         this->s = s;
@@ -107,13 +105,59 @@ void Let::print(){
         cout << endl;
 }
 
+
+Let Let::operator,(const char* x){
+        add(to_string(size),string(x));
+        size++;
+        return *this;
+}
+Let Let::operator+(const char* x){
+        add(to_string(size),string(x));
+        size++;
+        return *this;
+}
+
+
 Let Let::operator,(int x){
         add(to_string(size),x);
         size++;
-
         return *this;
 }
 Let Let::operator+(int x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+
+
+Let Let::operator,(double x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+Let Let::operator+(double x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+
+Let Let::operator,(bool x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+Let Let::operator+(bool x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+
+Let Let::operator,(Let const x){
+        add(to_string(size),x);
+        size++;
+        return *this;
+}
+Let Let::operator+(Let const x){
         add(to_string(size),x);
         size++;
         return *this;

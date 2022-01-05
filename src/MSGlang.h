@@ -55,8 +55,22 @@ class Let{
             return x;
         }
         //nikolh gtxs kane to gia ola ta data types mh gamhsw
+
+        Let operator,(const char* x);
+        Let operator+(const char* x);
+
         Let operator,(int x);
         Let operator+(int x);
+        
+        Let operator,(double x);
+        Let operator+(double x);
+
+        Let operator,(bool x);
+        Let operator+(bool x);
+
+        Let operator,(Let const x);
+        Let operator+(Let const x);
+
 };
 
 
