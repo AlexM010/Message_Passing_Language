@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "MSGlang.h"
-
+vector <Item>args_list;
 Item::Item(const string& s){
         this->s = s;
         this->e=STRING;
@@ -26,19 +26,19 @@ Item::Item(const bool& b){
         this->is_empty=false;
 }
 
-Item::Item(Let const l){
-        this->l =(Let*) &l;
+Item::Item(Let *l){
+        this->l =l;
         this->e=OBJECT;
         this->is_empty=false;
 }
-template<typename T>
-Item::Item(function<T(void)> f){
+
+Item::Item(function<bool(Let& x)> f){
         this->f = f;
         this->e=METHOD;
         this->is_empty=false;
 }
-template<typename T>
-void Item::set(function<T(void)> f){
+
+void Item::set(function<bool(Let& x)> f){
         this->f = f;
 }
 void Item::set(const string& s){
@@ -65,6 +65,9 @@ Item& Item::operator=(void* x){
         this->set(x);
         return *this;
 }
+string Item::getStr(){
+        return this->s;
+}
 
 void Item::print(){
     switch (e)
@@ -86,13 +89,15 @@ void Item::print(){
         l->print();
         break;
     case METHOD:
-        f();
         cout<<"Method";
         break;
     default:
         break;
     }
 }
+ void Item::get_func(Let& x){
+        f(x);
+ }
 Let::Let(){
     this->empty=true;
 }
@@ -128,7 +133,7 @@ Let Let::add(string key,const bool& b){
         return *this;
 }
 
-Let Let::add(string key,Let const l){
+Let Let::add(string key,Let *l){
         Item* it=new Item(l);
         this->data.insert(pair<string,Item*>(key,it));
         this->empty=false;
@@ -136,6 +141,12 @@ Let Let::add(string key,Let const l){
 }
 Let Let::add(string key,const Item& i){
         Item* it=new Item(i);
+        this->data.insert(pair<string,Item*>(key,it));
+        this->empty=false;
+        return *this;
+}
+Let Let::add(string key,function<bool(Let& x)>f){
+        Item* it=new Item(f);
         this->data.insert(pair<string,Item*>(key,it));
         this->empty=false;
         return *this;
@@ -166,7 +177,6 @@ Item& Let::operator[](string key){
         return item;
 }
 
-
 Let Let::operator,(Let x){
         this->data.insert(x.data.begin(),x.data.end());
         return *this;
@@ -177,11 +187,6 @@ Let Let::operator,(int x){
 
         return *this;
 }
-Let Let::operator+(int x){
-        add(to_string(size),x);
-        size++;
-        return *this;
-}
 Let Let::operator=(int x){
         add(temp,x);
         return *this;
@@ -190,11 +195,23 @@ Let Let::operator=(Item i){
         add(temp,i);
         return *this;
 }
-Let Let::operator=(function<bool(void)> f){
+Let Let::operator=(function<bool(Let& x)> f){
         add(temp,f);
         return *this;
 }
-Let Let::operator,(function<bool(void)> f){
+Let Let::operator=(const char* c){
+        add(temp,string(c));
+        return *this;
+}
+Let Let::operator=(string s){
+        add(temp,s);
+        return *this;
+}
+Let Let::operator=(double d){
+        add(temp,d);
+        return *this;
+}
+Let Let::operator,(function<bool(Let& x)> f){
         add(to_string(size),f);
         size++;
         return *this;
@@ -204,18 +221,13 @@ Let Let::operator,(const char* x){
         size++;
         return *this;
 }
-Let Let::operator+(const char* x){
-        add(to_string(size),string(x));
+Let Let::operator,(string x){
+        add(to_string(size),x);
         size++;
         return *this;
 }
 
 Let Let::operator,(double x){
-        add(to_string(size),x);
-        size++;
-        return *this;
-}
-Let Let::operator+(double x){
         add(to_string(size),x);
         size++;
         return *this;
@@ -226,16 +238,17 @@ Let Let::operator,(bool x){
         size++;
         return *this;
 }
-Let Let::operator+(bool x){
-        add(to_string(size),x);
-        size++;
-        return *this;
-}
-
-
-Let Let::operator+(Let const x){
-        add(to_string(size),x);
-        size++;
+Let Let::operator<<(Let sen){
+        this->rec_data.insert(sen.data.begin(),sen.data.end());
+        //throw message for call
+        //error message for
+        for(auto i : sen.data)   //inserting map values into vector
+        {
+                args_list.push_back(*i.second);
+        }
+       Item* t= this->data[this->rec_data["call"]->getStr()];
+       
+        t->get_func(*this);
         return *this;
 }
 Item input(const char*s){
@@ -290,6 +303,7 @@ ostream& operator<<(ostream& os, const Item& it){
         return os;
 
 }
+
 ostream& operator<<(ostream& os, const Let& l){
     os<<"object ";
         if(l.empty){
@@ -297,12 +311,17 @@ ostream& operator<<(ostream& os, const Let& l){
         }else{
             os<<"[ ";
             for(auto it=l.data.begin();it!=l.data.end();){
-                os<<"\""<<it->first<<"\" : ";
-                it->second->print();
-                it++;
-                if(it!=l.data.end()){
-                    os<<" , ";
-                }
+              
+                
+                        os<<"\""<<it->first<<"\" : ";
+                        os<<*it->second;
+                        it++;
+                        if((it)->first.compare(string("call"))==0)
+                                it++;
+                        if(it !=l.data.end()){
+                                os<<" , ";
+                        }
+                
             }
             os<<" ] ";
         }
