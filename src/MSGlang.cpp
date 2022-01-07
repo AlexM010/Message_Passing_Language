@@ -2,6 +2,7 @@
 #include <string>
 #include "MSGlang.h"
 vector <Item>args_list;
+
 Item::Item(const string& s){
         this->s = s;
         this->e=STRING;
@@ -95,8 +96,8 @@ void Item::print(){
         break;
     }
 }
- void Item::get_func(Let& x){
-        f(x);
+ bool Item::get_func(Let& x){
+      return  f(x);
  }
 Let::Let(){
     this->empty=true;
@@ -275,7 +276,7 @@ Item input(const char*s){
 
 }
 ostream& operator<<(ostream& os, const Item& it){
-        cerr<<"In Item "<<it.e<<" "<<it.i<<endl;
+        
     switch (it.e)
     {
     case it.INT:
@@ -304,6 +305,7 @@ ostream& operator<<(ostream& os, const Item& it){
 
 }
 
+
 ostream& operator<<(ostream& os, const Let& l){
        
     os<<"object ";
@@ -312,15 +314,17 @@ ostream& operator<<(ostream& os, const Let& l){
         }else{
             os<<"[ ";
             for(auto it=l.data.begin();it!=l.data.end();){
+
+                if(it->first.compare(string("call"))==0)
+                       it++;
+                else{
+                        if(it !=l.data.end() && it !=l.data.begin()){
+                                os<<" , ";
+                        }
                         os<<"\""<<it->first<<"\" : ";
                         os<<*it->second;
                         it++;
-                        cout<<__LINE__<<endl;
-                        if(it->first.compare(string("call"))==0)
-                                it++;
-                        cout<<__LINE__<<endl;
-                       if(it !=l.data.end()){
-                               os<<" , ";
+                
                 }
             }
             os<<" ] ";

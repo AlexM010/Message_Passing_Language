@@ -2,29 +2,37 @@
 
 
 int main() {
-
-    let x=object[key("x")=1,key("y")=2,key("y1")=3];
-    let printf_impl = object [
-        key("1")="alex",
-        func("printf"){
-         cout<<"Hello"<<self(1)<<arg(1)<<endl;
-            for (auto& v : args_list)
-                std::cout << v << nl;
+  let connection = object[
+        call("connect"),
+        key("ip") = "1.1.1.1",
+        key("port") = 5000,
+        func("cond"){ return arg(port) == self(port);},
+        func("success"){
+            cout << arg(ip) << " connected to " 
+            << self(ip) << nl;
             return true;
+        },
+        func("failure"){
+            cout << arg(ip) << " failed to connect to" 
+            << self(ip) << nl;
+            return false;
         }
     ];
-    cout<<x;
 
-  //  cout<<printf_impl<<endl;
-    //operator = to do with char*
-   printf_impl["1"]=2;
-   cout<<printf_impl["1"]<<endl;
-    
-    
-    let o3 = object [ call("printf"), values 1, "4", -3.14 ,true];
-    cout<<o3<<endl;
-    printf_impl<<o3;
-    
+    let conn_impl = object[
+        key("ip") = "127.0.0.1",
+        key("port") = 3030,
+        func("connect"){
+            if(eval_cond("cond")){
+                eval("success");
+            }
+            else
+                eval("failure");
+            return false;
+        }
+    ];
+
+    conn_impl << connection;
     
     return 0;
 }
