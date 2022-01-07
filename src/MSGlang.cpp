@@ -275,7 +275,7 @@ Item input(const char*s){
 
 }
 ostream& operator<<(ostream& os, const Item& it){
-        
+        cerr<<"In Item "<<it.e<<" "<<it.i<<endl;
     switch (it.e)
     {
     case it.INT:
@@ -305,25 +305,26 @@ ostream& operator<<(ostream& os, const Item& it){
 }
 
 ostream& operator<<(ostream& os, const Let& l){
+       
     os<<"object ";
         if(l.empty){
             os<<"Empty"<<endl;
         }else{
             os<<"[ ";
             for(auto it=l.data.begin();it!=l.data.end();){
-              
-                
                         os<<"\""<<it->first<<"\" : ";
                         os<<*it->second;
                         it++;
-                        if((it)->first.compare(string("call"))==0)
+                        cout<<__LINE__<<endl;
+                        if(it->first.compare(string("call"))==0)
                                 it++;
-                        if(it !=l.data.end()){
-                                os<<" , ";
-                        }
-                
+                        cout<<__LINE__<<endl;
+                       if(it !=l.data.end()){
+                               os<<" , ";
+                }
             }
             os<<" ] ";
+
         }
         os << endl;
     return os;

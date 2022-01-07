@@ -3,6 +3,7 @@
 
 int main() {
 
+    let x=object[key("x")=1,key("y")=2,key("y1")=3];
     let printf_impl = object [
         key("1")="alex",
         func("printf"){
@@ -12,7 +13,9 @@ int main() {
             return true;
         }
     ];
-    cout<<printf_impl<<endl;
+    cout<<x;
+
+  //  cout<<printf_impl<<endl;
     //operator = to do with char*
    printf_impl["1"]=2;
    cout<<printf_impl["1"]<<endl;
