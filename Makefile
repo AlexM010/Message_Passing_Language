@@ -15,7 +15,7 @@ BUILD_DIR = bin
 
 # add more CompilerFLAGS as your project requires
 # change c++11 to c++14 or 17 etc.. to change c++ version
-CFLAGS = -std=c++11 -Wall -Wextra
+CFLAGS = -std=c++17 -Wall -Wextra
 
 # add libraries for your project here
 LDFLAGS = 
