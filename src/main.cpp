@@ -1,21 +1,53 @@
 #include "MSGlang.h"
 
-
+using namespace std;
 int main() {
-  let connection = object[
+    let o1 = object [
+        key("x") = -1,
+        key("y") = -2,
+        func("mid") { return (self(x) + self(y)) * 0.5f; },
+        func("+") {
+            return object [
+                key("x") = self(x) + arg(x),
+                key("y") = self(y) + arg(y)
+            ];
+        }
+    ];
+    
+    let o2 = object;
+    let o3 = object [ values 1, "2", true, -3.14 ];
+    std::cout <<o1<< o3<<endl;
+    let printf_impl = object [
+        func("printf") {
+            for (auto& v : args_list)
+                std::cout << v << nl;
+            return none;
+            }
+    ];
+
+     o3 = object [ call("printf"), values 1, "2", true, -3.14 ];
+    
+    printf_impl<<o3;
+    o1["x"] = 0;
+    o3["2"] = false;
+    cout<<endl<<o1<<o3<<endl;
+    let obj=object[values ref(o1),"2"];
+    cout<<obj<<endl;
+    let connection = object[
         call("connect"),
         key("ip") = "1.1.1.1",
+        key("bool") = true,
         key("port") = 5000,
         func("cond"){ return arg(port) == self(port);},
         func("success"){
-            cout << arg(ip) << " connected to " 
+            cout << arg(ip) << " connected to "
             << self(ip) << nl;
-            return true;
+            return none;
         },
         func("failure"){
-            cout << arg(ip) << " failed to connect to" 
+            cout << arg(ip) << " failed to connect to "
             << self(ip) << nl;
-            return false;
+            return none;
         }
     ];
 
@@ -28,11 +60,11 @@ int main() {
             }
             else
                 eval("failure");
-            return false;
+            return none;
         }
     ];
 
-    conn_impl << connection;
-    
+   conn_impl << connection;
     return 0;
 }
+
