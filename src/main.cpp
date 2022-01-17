@@ -28,10 +28,13 @@ int main() {
      o3 = object [ call("printf"), values 1, "2", true, -3.14 ];
     
     printf_impl<<o3;
-    o1["x"] = 0;
+    o1["x"] = 5;
     o3["2"] = false;
     cout<<endl<<o1<<o3<<endl;
+    o1["y"] = o1["x"] + o1["y"];
+    cout<<o1<<endl;
     let obj=object[values ref(o1),"2"];
+    obj["1"]=input("1: ");
     cout<<obj<<endl;
     let connection = object[
         call("connect"),

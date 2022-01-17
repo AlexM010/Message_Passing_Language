@@ -20,7 +20,7 @@
 #define arg(s) *l.getMap(true)[#s]
 #define none (*(new Let()))
 #define call(s) key("call")=s
-#define eval(s) (l.getMap(true)[s]->get_func)(l)
+#define eval(s) (l.getMap(true)[s]->get_func(l))
 #define eval_cond(s) any_cast<bool>(l.getMap(true)[s]->get_func(l))
 
 class Let;
