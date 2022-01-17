@@ -1,8 +1,8 @@
-#include <iostream>
-#include <string>
-#include "MSGlang.h"
 
-Item::Item(const string& s){
+#include "MSGlang.h"
+std::vector <Item>args_list;
+
+Item::Item(const std::string& s){
         this->s = s;
         this->e=STRING;
         this->is_empty=false;
@@ -26,22 +26,22 @@ Item::Item(const bool& b){
         this->is_empty=false;
 }
 
-Item::Item(Let const l){
-        this->l =(Let*) &l;
+Item::Item(Let *l){
+        this->l =l;
         this->e=OBJECT;
         this->is_empty=false;
 }
-template<typename T>
-Item::Item(function<T(void)> f){
+
+Item::Item(std::function<std::any(Let&x)> f){
         this->f = f;
         this->e=METHOD;
         this->is_empty=false;
 }
-template<typename T>
-void Item::set(function<T(void)> f){
+
+void Item::set(std::function<std::any(Let&x)> f){
         this->f = f;
 }
-void Item::set(const string& s){
+void Item::set(const std::string& s){
         this->s = s;
 }
 void Item::set(const int& i){
@@ -57,129 +57,159 @@ void Item::set(Let l){
         this->l = &l;
 }
 
-Item* Item::get(){
-        return this;
+std::string Item::getStr(){
+        return this->s;
 }
-
-Item& Item::operator=(void* x){
-        this->set(x);
+Item Item::get(){
         return *this;
 }
-
 void Item::print(){
     switch (e)
     {
     case INT:
-        cout<<i;
+        std::cout<<i;
         break;
     case DOUBLE:
-        cout<<d;
+        std::cout<<d;
         break;
     case BOOL:
-        if (b) cout<<"true";
-        else cout<<"false";
+        if (b) std::cout<<"true";
+        else std::cout<<"false";
         break;
     case STRING:
-        cout<<"\""<<s<<"\"";
+        std::cout<<"\""<<s<<"\"";
         break;
     case OBJECT:
         l->print();
         break;
     case METHOD:
-        f();
-        cout<<"Method";
+        std::cout<<"Method";
         break;
     default:
         break;
     }
 }
+std::any Item::get_func(Let& x){
+      return  f(x);
+ }
 Let::Let(){
     this->empty=true;
 }
-Let::Let(string s){
+Let::Let(std::string s){
     this->temp=s;
     this->empty=false;
 }
-Let Let::add(string key,const string& s){
+Let::Let(const Let& l){
+    this->temp=l.temp;
+    this->empty=l.empty;
+    this->rec_fun_id=l.rec_fun_id;
+    this->data=l.data;
+    this->rec_data=l.rec_data;
+    this->size=l.size;
+}
+std::map<std::string, Item*> Let::getMap(bool x){
+        if(x) return this->rec_data;
+        else return this->data;
+}
+Let Let::add(std::string key,const std::string& s){
         Item* it=new Item(s);
-        this->data.insert(pair<string,Item*>(key,it));
+        this->data.insert(std::pair<std::string,Item*>(key,it));
         this->empty=false;
         return *this;
 }
 
-Let Let::add(string key,const int& i){
+Let Let::add(std::string key,const int& i){
         Item* it=new Item(i);
-        this->data.insert(pair<string,Item*>(key,it));
+        this->data.insert(std::pair<std::string,Item*>(key,it));
         this->empty=false;
         return *this;
 }
 
-Let Let::add(string key,const double& d){
+Let Let::add(std::string key,const double& d){
         Item* it=new Item(d);
-        this->data.insert(pair<string,Item*>(key,it));
+        this->data.insert(std::pair<std::string,Item*>(key,it));
         this->empty=false;
         return *this;
 }
 
-Let Let::add(string key,const bool& b){
+Let Let::add(std::string key,const bool& b){
         Item* it=new Item(b);
-        this->data.insert(pair<string,Item*>(key,it));
+        this->data.insert(std::pair<std::string,Item*>(key,it));
         this->empty=false;
         return *this;
 }
 
-Let Let::add(string key,Let const l){
+Let Let::add(std::string key,Let *l){
         Item* it=new Item(l);
-        this->data.insert(pair<string,Item*>(key,it));
+        this->data.insert(std::pair<std::string,Item*>(key,it));
         this->empty=false;
         return *this;
 }
-Let Let::add(string key,const Item& i){
+Let Let::add(std::string key,const Item& i){
         Item* it=new Item(i);
-        this->data.insert(pair<string,Item*>(key,it));
+        this->data.insert(std::pair<std::string,Item*>(key,it));
+        this->empty=false;
+        return *this;
+}
+Let Let::add(std::string key,std::function<std::any(Let&x)>f){
+        Item* it=new Item(f);
+        this->data.insert(std::pair<std::string,Item*>(key,it));
         this->empty=false;
         return *this;
 }
 void Let::print(){
-        cout<<"object ";
+        std::cout<<"object ";
         if(this->empty){
-            cout<<"Empty"<<endl;
+            std::cout<<"Empty"<<std::endl;
         }else{
-            cout<<"[ ";
+            std::cout<<"[ ";
             for(auto it=this->data.begin();it!=this->data.end();){
-                cout<<"\""<<it->first<<"\" : ";
+                std::cout<<"\""<<it->first<<"\" : ";
                 it->second->print();
                 it++;
                 if(it!=this->data.end()){
-                    cout<<" , ";
+                    std::cout<<" , ";
                 }
             }
-            cout<<" ] ";
+            std::cout<<" ] ";
         }
-        cout << endl;
+        std::cout << std::endl;
 }
 Let Let::operator[](Let x){
         return x;
 }
-Item& Let::operator[](string key){
-        Item& item =(*this->data[key]->get());
+Item& Let::operator[](std::string key){
+        Item& item =(*this->data[key]);
         return item;
 }
-
 
 Let Let::operator,(Let x){
         this->data.insert(x.data.begin(),x.data.end());
         return *this;
 }
+Let Let::operator,(Let* x){
+        add(std::to_string(this->size),x);
+        size++;
+        return *this;
+}
 Let Let::operator,(int x){
-        add(to_string(size),x);
+        add(std::to_string(size),x);
         size++;
 
         return *this;
 }
-Let Let::operator+(int x){
-        add(to_string(size),x);
-        size++;
+Let Let::operator=(Let l){
+
+        for(auto it: l.data)   //inserting map values into std::vector
+        {
+                if(it.first.compare(std::string(""))!=0)
+                {
+                        this->data.insert(std::pair<std::string,Item*>(it.first,it.second));
+                }else{
+                        this->data.insert(std::pair<std::string,Item*>(this->temp,it.second));
+
+                }
+        }
         return *this;
 }
 Let Let::operator=(int x){
@@ -190,59 +220,73 @@ Let Let::operator=(Item i){
         add(temp,i);
         return *this;
 }
-Let Let::operator=(function<bool(void)> f){
-        add(temp,f);
+Let Let::operator%(std::function<std::any(Let&x)> f){
+        add(std::string(""),f);
         return *this;
 }
-Let Let::operator,(function<bool(void)> f){
-        add(to_string(size),f);
+Let Let::operator=(bool b){
+        add(temp,b);
+        return *this;
+}
+Let Let::operator=(const char* c){
+        add(temp,std::string(c));
+        return *this;
+}
+Let Let::operator=(std::string s){
+        add(temp,s);
+        return *this;
+}
+Let Let::operator=(double d){
+        add(temp,d);
+        return *this;
+}
+Let Let::operator,(std::function<std::any(Let&x)> f){
+        add(std::to_string(size),f);
         size++;
         return *this;
 }
 Let Let::operator,(const char* x){
-        add(to_string(size),string(x));
+        add(std::to_string(size),std::string(x));
         size++;
         return *this;
 }
-Let Let::operator+(const char* x){
-        add(to_string(size),string(x));
+Let Let::operator,(std::string x){
+        add(std::to_string(size),x);
         size++;
         return *this;
 }
 
 Let Let::operator,(double x){
-        add(to_string(size),x);
-        size++;
-        return *this;
-}
-Let Let::operator+(double x){
-        add(to_string(size),x);
+        add(std::to_string(size),x);
         size++;
         return *this;
 }
 
 Let Let::operator,(bool x){
-        add(to_string(size),x);
+        add(std::to_string(size),x);
         size++;
         return *this;
 }
-Let Let::operator+(bool x){
-        add(to_string(size),x);
-        size++;
-        return *this;
-}
+Let Let::operator<<(Let sen){
+        this->rec_data.insert(sen.data.begin(),sen.data.end());
+        //throw message for call
+        //error message for
+        
+        for(auto i : sen.data)   //inserting map values into std::vector
+        {
+                args_list.push_back(*i.second);
+                
+        }
 
-
-Let Let::operator+(Let const x){
-        add(to_string(size),x);
-        size++;
+       Item* t= this->data[this->rec_data[std::string("call")]->s];
+        t->get_func(*this);
         return *this;
 }
 Item input(const char*s){
-        cout<<s;
+        std::cout<<s;
         
-        string x=string();
-        cin>>x;
+        std::string x=std::string();
+        std::cin>>x;
         try{
         double d=stod(x);
         return(Item(d));
@@ -261,7 +305,7 @@ Item input(const char*s){
         }
 
 }
-ostream& operator<<(ostream& os, const Item& it){
+std::ostream& operator<<(std::ostream& os, const Item& it){
         
     switch (it.e)
     {
@@ -279,7 +323,7 @@ ostream& operator<<(ostream& os, const Item& it){
         os<<"\""<<it.s<<"\"";
         break;
     case it.OBJECT:
-        os<< it.l;
+        os<< *it.l;
         break;
     case it.METHOD:
         os<<"Method";
@@ -290,22 +334,31 @@ ostream& operator<<(ostream& os, const Item& it){
         return os;
 
 }
-ostream& operator<<(ostream& os, const Let& l){
+
+
+std::ostream& operator<<(std::ostream& os, const Let& l){
+       
     os<<"object ";
         if(l.empty){
-            os<<"Empty"<<endl;
+            os<<"Empty"<<std::endl;
         }else{
             os<<"[ ";
             for(auto it=l.data.begin();it!=l.data.end();){
-                os<<"\""<<it->first<<"\" : ";
-                it->second->print();
-                it++;
-                if(it!=l.data.end()){
-                    os<<" , ";
+
+                if(it->first.compare(std::string("call"))==0)
+                       it++;
+                else{
+                        if(it !=l.data.end() && it !=l.data.begin()){
+                                os<<" , ";
+                        }
+                        os<<"\""<<it->first<<"\" : ";
+                        os<<*it->second;
+                        it++;
                 }
             }
             os<<" ] ";
+
         }
-        os << endl;
+        os << std::endl;
     return os;
 }
