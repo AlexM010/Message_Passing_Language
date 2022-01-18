@@ -20,7 +20,13 @@
 #define arg(s) *l.getMap(true)[#s]
 #define none (*(new Let()))
 #define call(s) key("call")=s
-#define eval(s) (l.getMap(true)[s]->get_func(l))
+#define eval(s) l.getMap(true)[s]->get_func(l)
+#define eval_int(s) any_cast<int>(l.getMap(true)[s]->get_func(l))
+#define eval_float(s) any_cast<float>(l.getMap(true)[s]->get_func(l))
+#define eval_double(s) any_cast<double>(l.getMap(true)[s]->get_func(l))
+#define eval_string(s) any_cast<std::string>(l.getMap(true)[s]->get_func(l))
+#define eval_object(s) any_cast<Let*>(l.getMap(true)[s]->get_func(l))
+#define eval_method(s) any_cast<std::function<std::any(Let&)>>(l.getMap(true)[s]->get_func(l))
 #define eval_cond(s) any_cast<bool>(l.getMap(true)[s]->get_func(l))
 
 class Let;

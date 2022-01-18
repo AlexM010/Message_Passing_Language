@@ -18,14 +18,17 @@ int main() {
     let o3 = object [ values 1, "2", true, -3.14 ];
     std::cout <<o1<< o3<<endl;
     let printf_impl = object [
+        key("x") = -1,
+        key("y") = -2,
         func("printf") {
             for (auto& v : args_list)
                 std::cout << v << nl;
+            cout<<"\nfunc(\"mid\") returned: "<<eval_double("mid")<<endl;
             return none;
             }
     ];
 
-     o3 = object [ call("printf"), values 1, "2", true, -3.14 ];
+     o3 = object [ call("printf"), values 1, "2", true, -3.14, func("mid") { return (self(x) + self(y))*0.5f; } ];
     
     printf_impl<<o3;
     o1["x"] = 5;
@@ -33,7 +36,7 @@ int main() {
     cout<<endl<<o1<<o3<<endl;
     o1["y"] = o1["x"] + o1["y"];
     cout<<o1<<endl;
-    let obj=object[values ref(o1),"2"];
+    let obj=object[values ref(o1),"2",o1];
     obj["1"]=input("1: ");
     cout<<obj<<endl;
     let connection = object[

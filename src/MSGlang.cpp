@@ -1,4 +1,3 @@
-
 #include "MSGlang.h"
 std::vector <Item>args_list;
 
@@ -282,6 +281,7 @@ Let Let::operator<<(Let sen){
         t->get_func(*this);
         return *this;
 }
+
 Item input(const char*s){
         std::cout<<s;
         
@@ -305,6 +305,7 @@ Item input(const char*s){
         }
 
 }
+
 std::ostream& operator<<(std::ostream& os, const Item& it){
         
     switch (it.e)
